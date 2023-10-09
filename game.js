@@ -127,5 +127,5 @@ function calculateRound(selection1, selection2) {
   return winner;
 }
 
-// display game
+// display and play one round
 alert(playRound(getComputerSelection, getPlayerSelection));
