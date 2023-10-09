@@ -128,4 +128,38 @@ function calculateRound(selection1, selection2) {
 }
 
 // display and play one round
-alert(playRound(getComputerSelection, getPlayerSelection));
+// alert(playRound(getComputerSelection, getPlayerSelection));
+
+// a function to play an enitre game which consists of five rounds
+function game(aRound, compSel, playSel) {
+  // Variables
+  let roundWinner, // round winner
+    player1 = 0, // player 1 wins count
+    player2 = 0; // player 2 wins count
+  quit = false; // has player press quit game set to false
+
+  // start the five round game
+  for (let count = 1; count <= 5; count++) {
+    // result of the winner of current round
+    roundWinner = aRound(compSel, playSel);
+    // checks to see if roundWnner is defined and if quit is stored in the variable
+    if (roundWinner && roundWinner.includes("quit")) {
+      quit = true;
+      break;
+    }
+    // checks if the round winner is the player tally up player1 variable
+    if (roundWinner.includes("win")) player1++;
+    // else tally up player2 variable for computer round win
+    else player2++;
+    // display round and round winner
+    console.log(`Round ${count}: ${roundWinner}`);
+  }
+  // checks if quit variable is true, display quit message stored in roundWinner variable
+  if (quit) console.log(roundWinner);
+  // checks if player2 counter is higher than player2 counter, display game winning message
+  else if (player1 > player2) console.log("YAY! You won the game!");
+  // else display game losing message
+  else console.log("Sorry! You lose.");
+}
+// play the game
+game(playRound, getComputerSelection, getPlayerSelection);
