@@ -56,9 +56,6 @@ function playRound(computerChoice, playerChoice) {
   // variable for displaying
   let displayMsg = null;
 
-  // check to see if player quit game
-  if (player1 === -1) return "Canceled. Player quit.";
-
   do {
     // check if displayMsg is true
     if (displayMsg) {
@@ -67,6 +64,9 @@ function playRound(computerChoice, playerChoice) {
       // get player 2 selection again
       player2 = computerChoice();
     }
+    // check to see if player quit game
+    if (player1 === -1) return "Canceled. Player quit.";
+
     // calculate the winner and assign the result
     displayMsg = calculateRound(GAME[player1], GAME[player2]);
 
