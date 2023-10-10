@@ -119,8 +119,9 @@ function game(aRound, compSel, playSel) {
 const gameContainer = document.getElementById("game-container");
 const [welcomeHeading, startBtn] = createElements("h1", "button");
 
-startBtn.textContent = "Start Game";
-welcomeHeading.textContent = "Welcome to Rock Paper Scissors!";
+addContent(startBtn, "Start Game");
+addContent(welcomeHeading, "Welcome to Rock Paper Scissors!");
+
 gameContainer.appendChild(welcomeHeading);
 gameContainer.appendChild(startBtn);
 
@@ -132,4 +133,8 @@ function createElements(...elements) {
     arr.push(document.createElement(elements[prop]));
   }
   return arr;
+}
+// function for adding text content to element
+function addContent(element, content) {
+  element.textContent = content;
 }
