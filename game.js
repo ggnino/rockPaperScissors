@@ -126,43 +126,200 @@ function createElements(...elements) {
   return arr;
 }
 // function for adding text content to element
-function addContent(element, content) {
-  element.textContent = content;
+function addElementContent(element, content, type) {
+  if (type === "txt") element.textContent = content;
+  if (type === "img") element.src = content;
 }
 
-//function for styling an element
-function addStyling(element, styleObj) {
+// function for styling an element
+function addElementStyling(element, styleObj) {
   for (let styleProp in styleObj) {
     element.style[styleProp] = styleObj[styleProp];
   }
 }
-// function that start to build the game GUI
+// function for setting an atrribute to a element
+function setElementAttribute(element, attribute, attValue) {
+  element.setAttribute(attribute, attValue);
+}
+
+function setElementEvent(element, event, handler) {
+  element.addEventListener(event, handler);
+}
+
+function startBtnHandler(element) {
+  element.style.opacity = 0;
+  setTimeout(() => (element.style.display = "none"), 500);
+}
+
+function startBtnHover(e, element) {
+  if (e.type === "mouseenter") element.style.color = "red";
+  else element.style.color = "white";
+}
+
+function optionHover(e, element) {
+  if (e.type === "mouseenter") {
+    element.children[0].style.transform = "scale(1.2)";
+    element.style.color = "green";
+  } else {
+    element.children[0].style.transform = "scale(1)";
+    element.style.color = "black";
+  }
+}
+
+// function that starts to build the game GUI
 function buildGameUI() {
+  const bodyStyle = { padding: 0, margin: 0 };
+  const body = document.getElementsByTagName("body")[0];
+
+  addElementStyling(body, bodyStyle);
+
+  const [
+    welcomeHeading,
+    startBtn,
+    welcomeContainer,
+    gameContainer,
+    gameHeading,
+    gameOptionsContainer,
+    gameOptionsImage1,
+    gameOptionText1,
+    gameOptionContainer1,
+    gameOptionsImage2,
+    gameOptionText2,
+    gameOptionContainer2,
+    gameOptionsImage3,
+    gameOptionText3,
+    gameOptionContainer3,
+  ] = createElements(
+    "h1",
+    "button",
+    "div",
+    "div",
+    "h2",
+    "div",
+    "img",
+    "p",
+    "div",
+    "img",
+    "p",
+    "div",
+    "img",
+    "p",
+    "div"
+  );
+
+  setElementAttribute(welcomeContainer, "id", "welcome-container");
+  setElementAttribute(gameContainer, "id", "game-container");
+  addElementContent(gameHeading, "Choose One", "txt");
+  addElementContent(startBtn, "Start Game", "txt");
+  addElementContent(welcomeHeading, "Welcome to Rock Paper Scissors!", "txt");
+  addElementContent(gameOptionText1, "Rock", "txt");
+  addElementContent(gameOptionText2, "Paper", "txt");
+  addElementContent(gameOptionText3, "Scissors", "txt");
+  addElementContent(gameOptionsImage1, "./images/rock.png", "img");
+  addElementContent(gameOptionsImage2, "./images/p.png", "img");
+  addElementContent(gameOptionsImage3, "./images/s.png", "img");
+
+  gameOptionContainer1.append(gameOptionsImage1, gameOptionText1);
+  gameOptionContainer2.append(gameOptionsImage2, gameOptionText2);
+  gameOptionContainer3.append(gameOptionsImage3, gameOptionText3);
+  gameOptionsContainer.append(
+    gameOptionContainer1,
+    gameOptionContainer2,
+    gameOptionContainer3
+  );
+
+  welcomeContainer.appendChild(welcomeHeading);
+  welcomeContainer.appendChild(startBtn);
+  gameContainer.append(gameHeading, gameOptionsContainer);
+  body.append(welcomeContainer, gameContainer);
+
+  setElementEvent(startBtn, "click", () => startBtnHandler(welcomeContainer));
+  setElementEvent(startBtn, "mouseenter", (e) => startBtnHover(e, startBtn));
+  setElementEvent(startBtn, "mouseleave", (e) => startBtnHover(e, startBtn));
+  setElementEvent(gameOptionContainer1, "mouseenter", (e) =>
+    optionHover(e, gameOptionContainer1)
+  );
+  setElementEvent(gameOptionContainer1, "mouseleave", (e) =>
+    optionHover(e, gameOptionContainer1)
+  );
+  setElementEvent(gameOptionContainer2, "mouseenter", (e) =>
+    optionHover(e, gameOptionContainer2)
+  );
+  setElementEvent(gameOptionContainer2, "mouseleave", (e) =>
+    optionHover(e, gameOptionContainer2)
+  );
+  setElementEvent(gameOptionContainer3, "mouseenter", (e) =>
+    optionHover(e, gameOptionContainer3)
+  );
+  setElementEvent(gameOptionContainer3, "mouseleave", (e) =>
+    optionHover(e, gameOptionContainer3)
+  );
+
   const welcomeStyle = {
-    display: "flex",
+    display: "none",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-evenly",
     padding: "32px",
     backgroundColor: "black",
     color: "white",
     minHeight: "100vh",
+    fontSize: "42px",
+    transition: "all 0.5s ease-out",
   };
-  const bodyStyle = { padding: 0, margin: 0 };
-  const body = document.getElementsByTagName("body")[0];
 
-  addStyling(body, bodyStyle);
+  const welcomeBtnStyle = {
+    fontSize: "32px",
+    padding: "20px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    color: "white",
+    backgroundColor: "green",
+    border: "2px solid green",
+  };
 
-  const gameContainer = document.getElementById("game-container");
-  const [welcomeHeading, startBtn] = createElements("h1", "button");
+  const gameStyle = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    minHeight: "100vh",
+    fontSize: "40px",
+  };
 
-  addContent(startBtn, "Start Game");
-  addContent(welcomeHeading, "Welcome to Rock Paper Scissors!");
+  const gameOptionsStyle = {
+    display: "flex",
+    padding: "10px",
+    gap: "10px",
+    // alignItems: "center",
+    margin: "auto 0",
+  };
 
-  gameContainer.appendChild(welcomeHeading);
-  gameContainer.appendChild(startBtn);
+  const gameOptionStyle = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    fontStyle: "italic",
+    fontSize: "18px",
+    cursor: "pointer",
+    // border: "2px solid black",
+    transition: "color 0.2s linear",
+  };
+  const gameOptionImgStyle = {
+    transition: "transform 0.2s linear",
+  };
 
-  addStyling(gameContainer, welcomeStyle);
+  addElementStyling(startBtn, welcomeBtnStyle);
+  addElementStyling(welcomeContainer, welcomeStyle);
+  addElementStyling(gameContainer, gameStyle);
+  addElementStyling(gameOptionsContainer, gameOptionsStyle);
+  addElementStyling(gameOptionContainer1, gameOptionStyle);
+  addElementStyling(gameOptionsImage1, gameOptionImgStyle);
+  addElementStyling(gameOptionContainer2, gameOptionStyle);
+  addElementStyling(gameOptionsImage2, gameOptionImgStyle);
+  addElementStyling(gameOptionContainer3, gameOptionStyle);
+  addElementStyling(gameOptionsImage3, gameOptionImgStyle);
 }
 // build game UI
 buildGameUI();
