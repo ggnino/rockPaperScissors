@@ -116,15 +116,6 @@ function game(aRound, compSel, playSel) {
   else console.log("Sorry! You lose.");
 }
 
-const gameContainer = document.getElementById("game-container");
-const [welcomeHeading, startBtn] = createElements("h1", "button");
-
-addContent(startBtn, "Start Game");
-addContent(welcomeHeading, "Welcome to Rock Paper Scissors!");
-
-gameContainer.appendChild(welcomeHeading);
-gameContainer.appendChild(startBtn);
-
 // function for creating elemenets
 function createElements(...elements) {
   let arr = [];
@@ -138,3 +129,40 @@ function createElements(...elements) {
 function addContent(element, content) {
   element.textContent = content;
 }
+
+//function for styling an element
+function addStyling(element, styleObj) {
+  for (let styleProp in styleObj) {
+    element.style[styleProp] = styleObj[styleProp];
+  }
+}
+// function that start to build the game GUI
+function buildGameUI() {
+  const welcomeStyle = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "32px",
+    backgroundColor: "black",
+    color: "white",
+    minHeight: "100vh",
+  };
+  const bodyStyle = { padding: 0, margin: 0 };
+  const body = document.getElementsByTagName("body")[0];
+
+  addStyling(body, bodyStyle);
+
+  const gameContainer = document.getElementById("game-container");
+  const [welcomeHeading, startBtn] = createElements("h1", "button");
+
+  addContent(startBtn, "Start Game");
+  addContent(welcomeHeading, "Welcome to Rock Paper Scissors!");
+
+  gameContainer.appendChild(welcomeHeading);
+  gameContainer.appendChild(startBtn);
+
+  addStyling(gameContainer, welcomeStyle);
+}
+// build game UI
+buildGameUI();
