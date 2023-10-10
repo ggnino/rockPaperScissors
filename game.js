@@ -115,5 +115,21 @@ function game(aRound, compSel, playSel) {
   else if (player1 > player2) console.log("YAY! You won the game!");
   else console.log("Sorry! You lose.");
 }
-// play the game
-game(playRound, getComputerSelection, getPlayerSelection);
+
+const gameContainer = document.getElementById("game-container");
+const [welcomeHeading, startBtn] = createElements("h1", "button");
+
+startBtn.textContent = "Start Game";
+welcomeHeading.textContent = "Welcome to Rock Paper Scissors!";
+gameContainer.appendChild(welcomeHeading);
+gameContainer.appendChild(startBtn);
+
+// function for creating elemenets
+function createElements(...elements) {
+  let arr = [];
+
+  for (let prop in elements) {
+    arr.push(document.createElement(elements[prop]));
+  }
+  return arr;
+}
