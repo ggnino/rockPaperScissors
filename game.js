@@ -4,85 +4,48 @@ function getComputerSelection() {
   return selection;
 }
 
-// function for getting the player selection
-function getPlayerSelection() {
-  let selection;
-
-  do {
-    selection = prompt("Choose Rock, Paper, or Scissors: ");
-
-    // check to see if player chose to cancel the game
-    selection === null ? (selection = "Canceled!") : false;
-
-    selection = selection.toLowerCase();
-
-    switch (selection) {
-      case "rock":
-        selection = 1;
-        break;
-      case "paper":
-        selection = 2;
-        break;
-      case "scissors":
-        selection = 3;
-        break;
-      case "canceled!":
-        selection = 0;
-        break;
-      default:
-        selection = false;
-        alert("Sorry Incorrect choice. Please try again.");
-        break;
-    }
-  } while (selection === false);
-
-  return selection;
-}
-
 // function for playing a single round
-function playRound(computerChoice, playerChoice) {
+async function playRound(player1, player2) {
   const GAME = ["Rock", "Paper", "Scissors"];
-  let player1 = playerChoice() - 1;
-  let player2 = computerChoice();
+
   let displayMsg = null;
-
   do {
-    if (displayMsg) {
-      player1 = playerChoice() - 1;
-      player2 = computerChoice();
-    }
-
-    if (player1 === -1) {
-      displayMsg = "Canceled. Player quit.";
-      return displayMsg;
-    }
-
     displayMsg = calculateRound(GAME[player1], GAME[player2]);
-
     if (displayMsg.includes("Tie")) {
-      alert(displayMsg);
+      let displayElement = document.getElementById("gameHeading");
+      let el = document.getElementById("game-options-container");
+      setTimeout(() => {
+        el.style.display = "flex";
+        el.style.opacity = 1;
+      }, 500);
+
+      addElementContent(displayElement, displayMsg, "txt");
       displayMsg = true;
-    } else return displayMsg;
-  } while (player1 === player2);
+      player1 = await getPlayerSelection();
+      player2 = getComputerSelection();
+    }
+  } while (displayMsg === true);
+
+  return displayMsg;
 }
 
 // function for calculating game results
 function calculateRound(selection1, selection2) {
-  let winner;
+  let winner = null;
 
   if (selection1 === "Rock" && selection2 === "Paper") {
-    winner = "You Lose! Paper beats Rock.";
+    winner = "You lose! Paper beats Rock.";
   } else if (selection1 === "Rock" && selection2 === "Scissors") {
     winner = "Congrats, You win! Rock beats Scissors.";
   } else if (selection1 === "Paper" && selection2 === "Scissors") {
-    winner = "You Lose! Scissors beats Paper.";
+    winner = "You lose! Scissors beats Paper.";
   } else if (selection1 === "Paper" && selection2 === "Rock") {
     winner = "Congrats, You win! Paper beats Rock.";
   } else if (selection1 === "Scissors" && selection2 === "Rock") {
-    winner = "You Lose! Rock beats Scissors.";
+    winner = "You lose! Rock beats Scissors.";
   } else if (selection1 === "Scissors" && selection2 === "Paper") {
     winner = "Congrats, You win! Scissors beats Paper.";
-  } else {
+  } else if (selection1 === selection2) {
     winner = "Tie! Try again.";
   }
 
@@ -90,30 +53,56 @@ function calculateRound(selection1, selection2) {
 }
 
 // a function to play an enitre game which consists of five rounds
-function game(aRound, compSel, playSel) {
-  let roundWinner,
-    player1 = 0,
-    player2 = 0,
-    quit = false;
+async function game(aRound, compSel, playSel) {
+  let player1,
+    player2,
+    roundWinner,
+    player1Score = 0,
+    player2Score = 0,
+    quit = false,
+    gameScore = document.getElementById("gameHeading"),
+    el = document.getElementById("game-options-container"),
+    roundHeading = document.getElementById("gameRoundHeading");
 
-  // starts the five round game
   for (let count = 1; count <= 5; count++) {
-    roundWinner = aRound(compSel, playSel);
+    console.log("Round " + count + " waiting...");
+    player1 = await playSel();
+    player2 = compSel();
+    console.log("selected!");
 
-    if (roundWinner && roundWinner.includes("quit")) {
+    roundWinner = await aRound(player1, player2);
+    if (roundWinner) {
+      if (roundWinner.includes("win")) player1Score++;
+      else if (roundWinner.includes("lose")) player2Score++;
+      else if (roundWinner.includes("Tie")) {
+        addElementContent(roundHeading, ` ${roundWinner}`, "txt");
+      }
+      setTimeout(() => {
+        el.style.display = "flex";
+        el.style.opacity = 1;
+      }, 500);
+      if (!roundWinner.includes("Tie")) {
+        addElementContent(
+          gameScore,
+          `Score ${player1Score}-${player2Score}`,
+          "txt"
+        );
+        addElementContent(
+          roundHeading,
+          `Round ${count}: ${roundWinner}`,
+          "txt"
+        );
+      }
+      addElementContent(roundHeading, `Round ${count}: ${roundWinner}`, "txt");
+      roundWinner = "";
+    } else {
       quit = true;
-      break;
     }
-
-    if (roundWinner.includes("win")) player1++;
-    else player2++;
-
-    console.log(`Round ${count}: ${roundWinner}`);
   }
-
-  if (quit) console.log(roundWinner);
-  else if (player1 > player2) console.log("YAY! You won the game!");
-  else console.log("Sorry! You lose.");
+  if (player1Score > player2Score) console.log("Congrats! You won,");
+  if (player1Score < player2Score) console.log("LOL! YOU LOSE! LOSER!");
+  if (player1Score === player2Score)
+    console.log("WOW! What a game, but it is tied.");
 }
 
 // function for creating elemenets
@@ -165,6 +154,39 @@ function optionHover(e, element) {
     element.style.color = "black";
   }
 }
+// function for getting the player selection after the click event has been fired
+async function getPlayerSelection() {
+  let clickedElement = document.getElementById("game-options-container");
+
+  let value = null;
+  value = await new Promise((resolved) => {
+    clickedElement.addEventListener("click", (e) => {
+      resolved(optionClicker(e, clickedElement));
+    });
+  });
+
+  return value;
+}
+// click handler function for game options
+function optionClicker(e, selection) {
+  selection.children[0].children[0].style.transform = "scale(4)";
+  selection.children[1].children[0].style.transform = "scale(0)";
+  selection.children[1].children[1].style.transform = "scale(0)";
+  selection.children[2].children[0].style.transform = "scale(0)";
+  selection.children[2].children[1].style.transform = "scale(0)";
+
+  selection.style.opacity = 0;
+  setTimeout(() => {
+    selection.style.display = "none";
+    selection.children[0].children[0].style.transform = "scale(1)";
+    selection.children[1].children[0].style.transform = "scale(1)";
+    selection.children[1].children[1].style.transform = "scale(1)";
+    selection.children[2].children[1].style.transform = "scale(1)";
+    selection.children[2].children[1].style.transform = "scale(1)";
+  }, 100);
+
+  return e.target.attributes[0].value;
+}
 
 // function that starts to build the game GUI
 function buildGameUI() {
@@ -179,22 +201,27 @@ function buildGameUI() {
     welcomeContainer,
     gameContainer,
     gameHeading,
+    gameRoundHeading,
     gameOptionsContainer,
-    gameOptionsImage1,
+    gameOptionImage1,
     gameOptionText1,
     gameOptionContainer1,
-    gameOptionsImage2,
+    gameOptionImage2,
     gameOptionText2,
     gameOptionContainer2,
-    gameOptionsImage3,
+    gameOptionImage3,
     gameOptionText3,
     gameOptionContainer3,
+    gameRoundContainer,
+    gameRoundPlayer,
+    gameRoundComp,
   ] = createElements(
     "h1",
     "button",
     "div",
     "div",
     "h2",
+    "h3",
     "div",
     "img",
     "p",
@@ -204,24 +231,40 @@ function buildGameUI() {
     "div",
     "img",
     "p",
-    "div"
+    "div",
+    "div",
+    "img",
+    "img"
   );
 
+  setElementAttribute(gameRoundHeading, "id", "gameRoundHeading");
+  setElementAttribute(gameHeading, "id", "gameHeading");
+  setElementAttribute(gameRoundContainer, "id", "gameRound-container");
   setElementAttribute(welcomeContainer, "id", "welcome-container");
   setElementAttribute(gameContainer, "id", "game-container");
+  setElementAttribute(gameOptionsContainer, "id", "game-options-container");
+  setElementAttribute(gameOptionContainer1, "value", 0);
+  setElementAttribute(gameOptionImage1, "value", 0);
+  setElementAttribute(gameOptionText1, "value", 0);
+  setElementAttribute(gameOptionContainer2, "value", 1);
+  setElementAttribute(gameOptionImage2, "value", 1);
+  setElementAttribute(gameOptionText2, "value", 1);
+  setElementAttribute(gameOptionContainer3, "value", 2);
+  setElementAttribute(gameOptionImage3, "value", 2);
+  setElementAttribute(gameOptionText3, "value", 2);
   addElementContent(gameHeading, "Choose One", "txt");
   addElementContent(startBtn, "Start Game", "txt");
   addElementContent(welcomeHeading, "Welcome to Rock Paper Scissors!", "txt");
   addElementContent(gameOptionText1, "Rock", "txt");
   addElementContent(gameOptionText2, "Paper", "txt");
   addElementContent(gameOptionText3, "Scissors", "txt");
-  addElementContent(gameOptionsImage1, "./images/rock.png", "img");
-  addElementContent(gameOptionsImage2, "./images/p.png", "img");
-  addElementContent(gameOptionsImage3, "./images/s.png", "img");
+  addElementContent(gameOptionImage1, "./images/rock.png", "img");
+  addElementContent(gameOptionImage2, "./images/p.png", "img");
+  addElementContent(gameOptionImage3, "./images/s.png", "img");
 
-  gameOptionContainer1.append(gameOptionsImage1, gameOptionText1);
-  gameOptionContainer2.append(gameOptionsImage2, gameOptionText2);
-  gameOptionContainer3.append(gameOptionsImage3, gameOptionText3);
+  gameOptionContainer1.append(gameOptionImage1, gameOptionText1);
+  gameOptionContainer2.append(gameOptionImage2, gameOptionText2);
+  gameOptionContainer3.append(gameOptionImage3, gameOptionText3);
   gameOptionsContainer.append(
     gameOptionContainer1,
     gameOptionContainer2,
@@ -230,12 +273,15 @@ function buildGameUI() {
 
   welcomeContainer.appendChild(welcomeHeading);
   welcomeContainer.appendChild(startBtn);
-  gameContainer.append(gameHeading, gameOptionsContainer);
+  gameContainer.append(gameHeading, gameRoundHeading, gameOptionsContainer);
   body.append(welcomeContainer, gameContainer);
 
   setElementEvent(startBtn, "click", () => startBtnHandler(welcomeContainer));
   setElementEvent(startBtn, "mouseenter", (e) => startBtnHover(e, startBtn));
   setElementEvent(startBtn, "mouseleave", (e) => startBtnHover(e, startBtn));
+  // setElementEvent(gameOptionsContainer, "click", (e) =>
+  //   optionClicker(e, gameOptionsContainer)
+  // );
   setElementEvent(gameOptionContainer1, "mouseenter", (e) =>
     optionHover(e, gameOptionContainer1)
   );
@@ -293,6 +339,7 @@ function buildGameUI() {
     gap: "10px",
     // alignItems: "center",
     margin: "auto 0",
+    transition: "opacity 0.2s ease-out",
   };
 
   const gameOptionStyle = {
@@ -315,11 +362,13 @@ function buildGameUI() {
   addElementStyling(gameContainer, gameStyle);
   addElementStyling(gameOptionsContainer, gameOptionsStyle);
   addElementStyling(gameOptionContainer1, gameOptionStyle);
-  addElementStyling(gameOptionsImage1, gameOptionImgStyle);
+  addElementStyling(gameOptionImage1, gameOptionImgStyle);
   addElementStyling(gameOptionContainer2, gameOptionStyle);
-  addElementStyling(gameOptionsImage2, gameOptionImgStyle);
+  addElementStyling(gameOptionImage2, gameOptionImgStyle);
   addElementStyling(gameOptionContainer3, gameOptionStyle);
-  addElementStyling(gameOptionsImage3, gameOptionImgStyle);
+  addElementStyling(gameOptionImage3, gameOptionImgStyle);
 }
 // build game UI
 buildGameUI();
+
+game(playRound, getComputerSelection, getPlayerSelection);
