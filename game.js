@@ -17,7 +17,7 @@ async function playRound(player1, player2) {
       setTimeout(() => {
         el.style.display = "flex";
         el.style.opacity = 1;
-      }, 500);
+      }, 1500);
 
       addElementContent(displayElement, displayMsg, "txt");
       displayMsg = true;
@@ -60,6 +60,7 @@ async function game(aRound, compSel, playSel) {
     player1Score = 0,
     player2Score = 0,
     quit = false,
+    gamePlay = document.getElementById("game-play-container"),
     gameScore = document.getElementById("gameHeading"),
     el = document.getElementById("game-options-container"),
     roundHeading = document.getElementById("gameRoundHeading");
@@ -77,10 +78,24 @@ async function game(aRound, compSel, playSel) {
       else if (roundWinner.includes("Tie")) {
         addElementContent(roundHeading, ` ${roundWinner}`, "txt");
       }
+
+      gamePlay.style.display = "flex";
+      gamePlay.children[1].style.opacity = 1;
+      gamePlay.children[0].style.opacity = 1;
       setTimeout(() => {
+        gamePlay.children[0].style.transform = "translateX(0)";
+        gamePlay.children[1].style.transform = "translateX(0)";
+      }, 1100);
+
+      setTimeout(() => {
+        gamePlay.style.display = "none";
+        gamePlay.children[0].style.opacity = 0;
+        gamePlay.children[0].style.transform = "translateX(-1500px)";
+        gamePlay.children[1].style.opacity = 0;
+        gamePlay.children[1].style.transform = "translateX(1500px)";
         el.style.display = "flex";
         el.style.opacity = 1;
-      }, 500);
+      }, 1500);
       if (!roundWinner.includes("Tie")) {
         addElementContent(
           gameScore,
@@ -183,7 +198,7 @@ function optionClicker(e, selection) {
     selection.children[1].children[1].style.transform = "scale(1)";
     selection.children[2].children[1].style.transform = "scale(1)";
     selection.children[2].children[1].style.transform = "scale(1)";
-  }, 100);
+  }, 500);
 
   return e.target.attributes[0].value;
 }
@@ -212,9 +227,9 @@ function buildGameUI() {
     gameOptionImage3,
     gameOptionText3,
     gameOptionContainer3,
-    gameRoundContainer,
-    gameRoundPlayer,
-    gameRoundComp,
+    gamePlayContainer,
+    gamePlayImg1,
+    gamePlayImg2,
   ] = createElements(
     "h1",
     "button",
@@ -237,9 +252,11 @@ function buildGameUI() {
     "img"
   );
 
+  setElementAttribute(gamePlayImg1, "id", "game-play-img-1");
+  setElementAttribute(gamePlayImg2, "id", "game-play-img-2");
   setElementAttribute(gameRoundHeading, "id", "gameRoundHeading");
   setElementAttribute(gameHeading, "id", "gameHeading");
-  setElementAttribute(gameRoundContainer, "id", "gameRound-container");
+  setElementAttribute(gamePlayContainer, "id", "game-play-container");
   setElementAttribute(welcomeContainer, "id", "welcome-container");
   setElementAttribute(gameContainer, "id", "game-container");
   setElementAttribute(gameOptionsContainer, "id", "game-options-container");
@@ -262,6 +279,9 @@ function buildGameUI() {
   addElementContent(gameOptionImage2, "./images/p.png", "img");
   addElementContent(gameOptionImage3, "./images/s.png", "img");
 
+  addElementContent(gamePlayImg1, "./images/fist2.png", "img");
+  addElementContent(gamePlayImg2, "./images/fist.png", "img");
+
   gameOptionContainer1.append(gameOptionImage1, gameOptionText1);
   gameOptionContainer2.append(gameOptionImage2, gameOptionText2);
   gameOptionContainer3.append(gameOptionImage3, gameOptionText3);
@@ -271,17 +291,22 @@ function buildGameUI() {
     gameOptionContainer3
   );
 
+  gamePlayContainer.append(gamePlayImg1, gamePlayImg2);
+
   welcomeContainer.appendChild(welcomeHeading);
   welcomeContainer.appendChild(startBtn);
-  gameContainer.append(gameHeading, gameRoundHeading, gameOptionsContainer);
+  gameContainer.append(
+    gameHeading,
+    gameRoundHeading,
+    gameOptionsContainer,
+    gamePlayContainer
+  );
   body.append(welcomeContainer, gameContainer);
 
   setElementEvent(startBtn, "click", () => startBtnHandler(welcomeContainer));
   setElementEvent(startBtn, "mouseenter", (e) => startBtnHover(e, startBtn));
   setElementEvent(startBtn, "mouseleave", (e) => startBtnHover(e, startBtn));
-  // setElementEvent(gameOptionsContainer, "click", (e) =>
-  //   optionClicker(e, gameOptionsContainer)
-  // );
+
   setElementEvent(gameOptionContainer1, "mouseenter", (e) =>
     optionHover(e, gameOptionContainer1)
   );
@@ -356,6 +381,20 @@ function buildGameUI() {
   const gameOptionImgStyle = {
     transition: "transform 0.2s linear",
   };
+  const gamePlayStyle = {
+    display: "none",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+  };
+  const gamePlayImg1Style = {
+    transform: "translateX(-1500px)",
+    transition: "all 0.2s linear",
+  };
+  const gamePlayImg2Style = {
+    transform: "translateX(1500px)",
+    transition: "all 0.2s linear",
+  };
 
   addElementStyling(startBtn, welcomeBtnStyle);
   addElementStyling(welcomeContainer, welcomeStyle);
@@ -367,6 +406,9 @@ function buildGameUI() {
   addElementStyling(gameOptionImage2, gameOptionImgStyle);
   addElementStyling(gameOptionContainer3, gameOptionStyle);
   addElementStyling(gameOptionImage3, gameOptionImgStyle);
+  addElementStyling(gamePlayImg1, gamePlayImg1Style);
+  addElementStyling(gamePlayImg2, gamePlayImg2Style);
+  addElementStyling(gamePlayContainer, gamePlayStyle);
 }
 // build game UI
 buildGameUI();
