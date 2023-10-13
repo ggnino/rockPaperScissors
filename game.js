@@ -4,6 +4,34 @@ function getComputerSelection() {
   return selection;
 }
 
+function gameplayAnimation(round = false) {
+  const gameOptionsContainer = document.getElementById(
+    "game-options-container"
+  );
+  const gamePlay = document.getElementById("game-play-container");
+  gamePlay.style.display = "flex";
+
+  setTimeout(() => {
+    gamePlay.children[1].style.opacity = 1;
+    gamePlay.children[0].style.opacity = 1;
+    gamePlay.children[0].style.transform = "translateX(0)";
+    gamePlay.children[1].style.transform = "translateX(0)";
+  }, 500);
+
+  setTimeout(() => {
+    gamePlay.style.display = "none";
+    gamePlay.children[0].style.opacity = 0;
+    gamePlay.children[0].style.transform = "translateX(-1500px)";
+    gamePlay.children[1].style.opacity = 0;
+    gamePlay.children[1].style.transform = "translateX(1500px)";
+
+    if (!round) {
+      gameOptionsContainer.style.display = "flex";
+      gameOptionsContainer.style.opacity = 1;
+    }
+  }, 1000);
+}
+
 // function for playing a single round
 async function playRound(player1, player2) {
   const GAME = ["Rock", "Paper", "Scissors"];
@@ -11,13 +39,15 @@ async function playRound(player1, player2) {
   let displayMsg = null;
   do {
     displayMsg = calculateRound(GAME[player1], GAME[player2]);
+    setPlayerImg(GAME[player1], GAME[player2]);
     if (displayMsg.includes("Tie")) {
       let displayElement = document.getElementById("gameHeading");
-      let el = document.getElementById("game-options-container");
-      setTimeout(() => {
-        el.style.display = "flex";
-        el.style.opacity = 1;
-      }, 1500);
+
+      const roundHeading = document.getElementById("gameRoundHeading");
+
+      addElementContent(roundHeading, ``, "txt");
+
+      gameplayAnimation();
 
       addElementContent(displayElement, displayMsg, "txt");
       displayMsg = true;
@@ -29,7 +59,7 @@ async function playRound(player1, player2) {
   return displayMsg;
 }
 
-// function for setting each play image for proper gameplay animation
+// function for setting each player image for proper gameplay animation
 function setPlayerImg(player1, player2) {
   const img1 = document.getElementById("game-play-img-1");
   const img2 = document.getElementById("game-play-img-2");
@@ -41,7 +71,7 @@ function setPlayerImg(player1, player2) {
 // function for calculating game results
 function calculateRound(selection1, selection2) {
   let winner = null;
-  setPlayerImg(selection1, selection2);
+
   if (selection1 === "Rock" && selection2 === "Paper") {
     winner = "You lose! Paper beats Rock.";
   } else if (selection1 === "Rock" && selection2 === "Scissors") {
@@ -63,70 +93,50 @@ function calculateRound(selection1, selection2) {
 
 // a function to play an enitre game which consists of five rounds
 async function game(aRound, compSel, playSel) {
-  let player1,
-    player2,
-    roundWinner,
+  const GAME_ROUNDS = 5;
+  let player1 = null,
+    player2 = null,
+    roundWinner = null,
     player1Score = 0,
     player2Score = 0,
-    quit = false,
-    gamePlay = document.getElementById("game-play-container"),
     gameScore = document.getElementById("gameHeading"),
-    el = document.getElementById("game-options-container"),
+    gameOverImg = document.getElementById("game-over-img"),
     roundHeading = document.getElementById("gameRoundHeading");
 
-  for (let count = 1; count <= 5; count++) {
-    console.log("Round " + count + " waiting...");
+  for (let count = 1; count <= GAME_ROUNDS; count++) {
     player1 = await playSel();
     player2 = compSel();
-    console.log("selected!");
 
     roundWinner = await aRound(player1, player2);
-    if (roundWinner) {
-      if (roundWinner.includes("win")) player1Score++;
-      else if (roundWinner.includes("lose")) player2Score++;
-      else if (roundWinner.includes("Tie")) {
-        addElementContent(roundHeading, ` ${roundWinner}`, "txt");
-      }
 
-      gamePlay.style.display = "flex";
-      gamePlay.children[1].style.opacity = 1;
-      gamePlay.children[0].style.opacity = 1;
-      setTimeout(() => {
-        gamePlay.children[0].style.transform = "translateX(0)";
-        gamePlay.children[1].style.transform = "translateX(0)";
-      }, 1100);
+    if (roundWinner.includes("win")) player1Score++;
+    else if (roundWinner.includes("lose")) player2Score++;
+    count === GAME_ROUNDS ? gameplayAnimation(true) : gameplayAnimation();
 
-      setTimeout(() => {
-        gamePlay.style.display = "none";
-        gamePlay.children[0].style.opacity = 0;
-        gamePlay.children[0].style.transform = "translateX(-1500px)";
-        gamePlay.children[1].style.opacity = 0;
-        gamePlay.children[1].style.transform = "translateX(1500px)";
-        el.style.display = "flex";
-        el.style.opacity = 1;
-      }, 1500);
-      if (!roundWinner.includes("Tie")) {
-        addElementContent(
-          gameScore,
-          `Score ${player1Score}-${player2Score}`,
-          "txt"
-        );
-        addElementContent(
-          roundHeading,
-          `Round ${count}: ${roundWinner}`,
-          "txt"
-        );
-      }
-      addElementContent(roundHeading, `Round ${count}: ${roundWinner}`, "txt");
-      roundWinner = "";
-    } else {
-      quit = true;
-    }
+    addElementContent(
+      gameScore,
+      `Score ${player1Score}-${player2Score}`,
+      "txt"
+    );
+    addElementContent(roundHeading, `Round ${count}: ${roundWinner}`, "txt");
+
+    roundWinner = "";
   }
-  if (player1Score > player2Score) console.log("Congrats! You won,");
-  if (player1Score < player2Score) console.log("LOL! YOU LOSE! LOSER!");
-  if (player1Score === player2Score)
-    console.log("WOW! What a game, but it is tied.");
+
+  if (player1Score > player2Score) {
+    roundWinner = "Congrats! You won.";
+    addElementContent(gameOverImg, "./images/win.png", "img");
+  }
+  if (player1Score < player2Score) {
+    roundWinner = "LOL! YOU LOSE! LOSER!";
+    addElementContent(gameOverImg, "./images/lose.png", "img");
+  }
+  setTimeout(() => {
+    gameOverImg.style.opacity = 1;
+  }, 1000);
+  setTimeout(() => {
+    addElementContent(roundHeading, `Game Over: ${roundWinner}`, "txt");
+  }, 1000);
 }
 
 // function for creating elemenets
@@ -161,7 +171,11 @@ function setElementEvent(element, event, handler) {
 
 function startBtnHandler(element) {
   element.style.opacity = 0;
-  setTimeout(() => (element.style.display = "none"), 500);
+  setTimeout(() => {
+    element.style.display = "none";
+    document.getElementById("game-container").style.display = "flex";
+    document.getElementById("game-container").style.opacity = 1;
+  }, 500);
 }
 
 // function for hover effect for the start button
@@ -183,31 +197,28 @@ function optionHover(e, element) {
 async function getPlayerSelection() {
   let clickedElement = document.getElementById("game-options-container");
 
-  let value = null;
-  value = await new Promise((resolved) => {
+  let myPromise = await new Promise((resolved) => {
     clickedElement.addEventListener("click", (e) => {
-      resolved(optionClicker(e, clickedElement));
+      let value = optionClicker(e, clickedElement);
+      resolved(value);
     });
   });
 
-  return value;
+  return myPromise;
 }
 // click handler function for game options
 function optionClicker(e, selection) {
-  selection.children[0].children[0].style.transform = "scale(4)";
-  selection.children[1].children[0].style.transform = "scale(0)";
-  selection.children[1].children[1].style.transform = "scale(0)";
-  selection.children[2].children[0].style.transform = "scale(0)";
-  selection.children[2].children[1].style.transform = "scale(0)";
+  const clicked = e.target.attributes.value.value;
+  selection.children[clicked].children[0].style.transform = "scale(4)";
 
   selection.style.opacity = 0;
+
   setTimeout(() => {
     selection.style.display = "none";
-    selection.children[0].children[0].style.transform = "scale(1)";
-    selection.children[1].children[0].style.transform = "scale(1)";
-    selection.children[1].children[1].style.transform = "scale(1)";
-    selection.children[2].children[1].style.transform = "scale(1)";
-    selection.children[2].children[1].style.transform = "scale(1)";
+  }, 100);
+
+  setTimeout(() => {
+    selection.children[clicked].children[0].style.transform = "scale(1)";
   }, 500);
 
   return e.target.attributes[0].value;
@@ -240,6 +251,7 @@ function buildGameUI() {
     gamePlayContainer,
     gamePlayImg1,
     gamePlayImg2,
+    gameOverImg,
   ] = createElements(
     "h1",
     "button",
@@ -259,9 +271,11 @@ function buildGameUI() {
     "div",
     "div",
     "img",
+    "img",
     "img"
   );
 
+  setElementAttribute(gameOverImg, "id", "game-over-img");
   setElementAttribute(gamePlayImg1, "id", "game-play-img-1");
   setElementAttribute(gamePlayImg2, "id", "game-play-img-2");
   setElementAttribute(gameRoundHeading, "id", "gameRoundHeading");
@@ -306,7 +320,8 @@ function buildGameUI() {
     gameHeading,
     gameRoundHeading,
     gameOptionsContainer,
-    gamePlayContainer
+    gamePlayContainer,
+    gameOverImg
   );
   body.append(welcomeContainer, gameContainer);
 
@@ -334,7 +349,7 @@ function buildGameUI() {
   );
 
   const welcomeStyle = {
-    display: "none",
+    display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "space-evenly",
@@ -343,7 +358,7 @@ function buildGameUI() {
     color: "white",
     minHeight: "100vh",
     fontSize: "42px",
-    transition: "all 0.5s ease-out",
+    transition: "all 0.2s ease-out",
   };
 
   const welcomeBtnStyle = {
@@ -357,21 +372,22 @@ function buildGameUI() {
   };
 
   const gameStyle = {
-    display: "flex",
+    display: "none",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "flex-start",
     minHeight: "100vh",
     fontSize: "40px",
+    opacity: 0,
+    transition: "all 0.5s ease-in",
   };
 
   const gameOptionsStyle = {
     display: "flex",
     padding: "10px",
     gap: "10px",
-    // alignItems: "center",
     margin: "auto 0",
-    transition: "opacity 0.2s ease-out",
+    transition: "all 0.2s ease-out",
   };
 
   const gameOptionStyle = {
@@ -382,7 +398,6 @@ function buildGameUI() {
     fontStyle: "italic",
     fontSize: "18px",
     cursor: "pointer",
-    // border: "2px solid black",
     transition: "color 0.2s linear",
   };
   const gameOptionImgStyle = {
@@ -402,6 +417,11 @@ function buildGameUI() {
     transform: "translateX(1500px)",
     transition: "all 0.2s linear",
   };
+  const gameOverImgStyle = {
+    width: "500px",
+    opacity: 0,
+    transition: "all 0.2s ease-in",
+  };
 
   addElementStyling(startBtn, welcomeBtnStyle);
   addElementStyling(welcomeContainer, welcomeStyle);
@@ -416,8 +436,10 @@ function buildGameUI() {
   addElementStyling(gamePlayImg1, gamePlayImg1Style);
   addElementStyling(gamePlayImg2, gamePlayImg2Style);
   addElementStyling(gamePlayContainer, gamePlayStyle);
+  addElementStyling(gameOverImg, gameOverImgStyle);
 }
 // build game UI
 buildGameUI();
 
+// Play game
 game(playRound, getComputerSelection, getPlayerSelection);
