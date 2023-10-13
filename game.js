@@ -29,10 +29,19 @@ async function playRound(player1, player2) {
   return displayMsg;
 }
 
+// function for setting each play image for proper gameplay animation
+function setPlayerImg(player1, player2) {
+  const img1 = document.getElementById("game-play-img-1");
+  const img2 = document.getElementById("game-play-img-2");
+
+  img1.src = `./images/${player1.toLowerCase()}1.png`;
+  img2.src = `./images/${player2.toLowerCase()}2.png`;
+}
+
 // function for calculating game results
 function calculateRound(selection1, selection2) {
   let winner = null;
-
+  setPlayerImg(selection1, selection2);
   if (selection1 === "Rock" && selection2 === "Paper") {
     winner = "You lose! Paper beats Rock.";
   } else if (selection1 === "Rock" && selection2 === "Scissors") {
@@ -155,11 +164,12 @@ function startBtnHandler(element) {
   setTimeout(() => (element.style.display = "none"), 500);
 }
 
+// function for hover effect for the start button
 function startBtnHover(e, element) {
   if (e.type === "mouseenter") element.style.color = "red";
   else element.style.color = "white";
 }
-
+// function for hover effect over game options
 function optionHover(e, element) {
   if (e.type === "mouseenter") {
     element.children[0].style.transform = "scale(1.2)";
@@ -276,11 +286,8 @@ function buildGameUI() {
   addElementContent(gameOptionText2, "Paper", "txt");
   addElementContent(gameOptionText3, "Scissors", "txt");
   addElementContent(gameOptionImage1, "./images/rock.png", "img");
-  addElementContent(gameOptionImage2, "./images/p.png", "img");
-  addElementContent(gameOptionImage3, "./images/s.png", "img");
-
-  addElementContent(gamePlayImg1, "./images/fist2.png", "img");
-  addElementContent(gamePlayImg2, "./images/fist.png", "img");
+  addElementContent(gameOptionImage2, "./images/paper.png", "img");
+  addElementContent(gameOptionImage3, "./images/scissors.png", "img");
 
   gameOptionContainer1.append(gameOptionImage1, gameOptionText1);
   gameOptionContainer2.append(gameOptionImage2, gameOptionText2);
